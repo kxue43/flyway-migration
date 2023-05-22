@@ -1,0 +1,45 @@
+name: 'Migrate MySQL database with Flyway'
+branding:
+  color: red
+  icon: database
+inputs:
+  endpoint:
+    description: Endpoint URL to the MySQL database instance.
+    type: string
+    required: true
+  port:
+    description: Port number of the MySQL database instance.
+    type: string
+    default: "3306"
+  user:
+    description: MySQL database user, default to root.
+    type: string
+    default: 'root'
+  password:
+    description: Password of the user.
+    type: string
+    required: true
+  locations:
+    description: The -locations CLI option passed to Flyway.
+    type: string
+    required: true
+  defaultSchema:
+    description: The default schema.
+    type: string
+    required: true
+  schemas:
+    description: Comma-separated list of database schemas.
+    type: string
+    required: true
+runs:
+  using: docker
+  image: docker://flyway/flyway:7.15
+  env:
+    FLYWAY_URL: jdbc:mysql://${{ inputs.endpoint }}:${{ inputs.port }}
+    FLYWAY_USER: ${{ inputs.user }}
+    FLYWAY_PASSWORD: ${{ inputs.password }}
+    FLYWAY_LOCATIONS: ${{ inputs.locations }}
+  args:
+    - migrate
+    - "-defaultSchema=${{ inputs.defaultSchema }}"
+    - "-schemas=${{ inputs.schemas }}"
